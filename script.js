@@ -172,8 +172,19 @@ console.log(request); //Promise {
 
 // without console.log:
 const getCountryData = function (country) {
+  // country 1
   fetch(`https://restcountries.com/v3.1/name/${country}`)
     .then(response => response.json())
-    .then(data => renderCountry(data[0]));
+    .then(data => {
+      renderCountry(data[0]);
+      const neighbour = data[0].borders[0];
+      if (!neighbour) return;
+      // country 2
+      console.log(neighbour);
+      return fetch(`https://restcountries.com/v3.1/alpha/${neighbour}`);
+    })
+    .then(response => response.json())
+    .then(data => renderCountry(data[0], 'neighbour'));
 };
 getCountryData('ukraine');
+// getCountryData('germany');
