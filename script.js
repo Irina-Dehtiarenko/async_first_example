@@ -27,7 +27,7 @@ const renderCountry = function (data, className = '') {
 // Error function:
 const renderError = function (msg) {
   countriesContainer.insertAdjacentText('beforeend', msg);
-  // countriesContainer.style.opacity = 1;
+  countriesContainer.style.opacity = 1;
 };
 
 ///////////////////////////////////////
@@ -178,41 +178,110 @@ console.log(request); //Promise {
 // };
 
 // without console.log:
+// const getCountryData = function (country) {
+//   // country 1
+//   fetch(`https://restcountries.com/v3.1/name/${country}`)
+//     .then(response => {
+//       console.log(response);
+//       if (!response.ok) {
+//         throw new Error(`Country not found (${response.status})!`);
+//       }
+//       return response.json();
+//       // 2callback: then( 1. when there is internet connection, 2. when there is no internet connection)
+//       // response => response.json();
+//       // err => alert(err)- zamiast tego - globalnie
+//     })
+//     .then(data => {
+//       renderCountry(data[0]);
+//       // const neighbour = data[0].borders[0];
+
+//       // error 2(400)
+//       const neighbour = 'srgsdgsg';
+
+//       if (!neighbour) return;
+//       // country 2
+//       console.log(neighbour);
+//       return fetch(`https://restcountries.com/v3.1/alpha/${neighbour}`);
+//     })
+//     .then(
+//       response => {
+//         // error 2(400)
+//         if (!response.ok) {
+//           throw new Error(`Country not found (${response.status})!`);
+//           // Something went wrong 🛑🛑🛑 Country not found (400)!. Try again!
+//         }
+//         return response.json();
+//       }
+//       // err => alert(err) - zamiast tego - globalnie
+//     )
+//     .then(data => renderCountry(data[0], 'neighbour'))
+//     .catch(err => {
+//       console.error(`${err} 🛑🛑🛑`);
+//       renderError(`Something went wrong 🛑🛑🛑 ${err.message}. Try again!`);
+//     })
+//     .finally(() => {
+//       countriesContainer.style.opacity = '1';
+//     });
+
+//   //script.js:195 TypeError: Failed to fetch
+// };
+
+// btn.addEventListener('click', function () {
+//   getCountryData('ukraine');
+
+//   // jeśli nie ma internetu i nie mamy przechwyconego błędu:
+//   //Uncaught (in promise) TypeError: NetworkError when attempting to fetch resource.
+//   // Zablokowano żądanie do zasobu innego pochodzenia: zasady „Same Origin Policy” nie pozwalają wczytywać zdalnych zasobów z „https://restcountries.com/v3.1/name/portugal” (nieudane żądanie CORS). Kod stanu: (null).
+// });
+// // getCountryData('dhhdr');
+// // 404 error
+// // jeśli nie ma przechwytywania takiego typu błędu, to wywoła się:
+// // Cannot read properties of undefined (reading 'flags'). Try again!
+
+// // getCountryData('dhhdr');
+
+const getJSON = function (url, errorMsg = 'Something went wrong') {
+  return fetch(url).then(response => {
+    if (!response.ok) throw new Error(`${errorMsg} (${response.status})!`);
+    return response.json();
+  });
+};
+
 const getCountryData = function (country) {
   // country 1
-  fetch(`https://restcountries.com/v3.1/name/${country}`)
-    .then(
-      // 2callback: then( 1. when there is internet connection, 2. when there is no internet connection)
-      response => response.json()
-      // err => alert(err)- zamiast tego - globalnie
-    )
+  getJSON(`https://restcountries.com/v3.1/name/${country}`, 'Country not found')
     .then(data => {
       renderCountry(data[0]);
-      const neighbour = data[0].borders[0];
-      if (!neighbour) return;
-      // country 2
+      // console.log(data[0].borders);
+      const neighbour = data[0].borders?.[0];
+      //  err 3  - no neighbour
       console.log(neighbour);
-      return fetch(`https://restcountries.com/v3.1/alpha/${neighbour}`);
+      // error 2 - status:400(not correct country as neighbour)
+      // const neighbour = 'srgsdgsg';
+      // if (!neighbour) return;
+      if (!neighbour) throw new Error('No neighbour found');
+
+      // country 2
+      return getJSON(
+        `https://restcountries.com/v3.1/alpha/${neighbour}`,
+        'Country not found'
+      );
     })
-    .then(
-      response => response.json()
-      // err => alert(err) - zamiast tego - globalnie
-    )
     .then(data => renderCountry(data[0], 'neighbour'))
     .catch(err => {
+      console.log(err);
       console.error(`${err} 🛑🛑🛑`);
       renderError(`Something went wrong 🛑🛑🛑 ${err.message}. Try again!`);
     })
     .finally(() => {
       countriesContainer.style.opacity = '1';
     });
-
-  //script.js:195 TypeError: Failed to fetch
 };
 
 btn.addEventListener('click', function () {
   getCountryData('ukraine');
-  // jeśli nie ma internetu i nie mamy przechwyconego błędu:
-  //Uncaught (in promise) TypeError: NetworkError when attempting to fetch resource.
-  // Zablokowano żądanie do zasobu innego pochodzenia: zasady „Same Origin Policy” nie pozwalają wczytywać zdalnych zasobów z „https://restcountries.com/v3.1/name/portugal” (nieudane żądanie CORS). Kod stanu: (null).
 });
+
+// no neighbour - error 3
+getCountryData('australia');
+// getCountryData('usa');
