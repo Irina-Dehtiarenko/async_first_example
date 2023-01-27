@@ -560,7 +560,7 @@ const whereAmI = async function () {
     if (!resGeo.ok) throw new Error('Problem getting location data');
 
     const dataGeo = await resGeo.json();
-    console.log(dataGeo);
+    // console.log(dataGeo);
 
     // country data
     const res = await fetch(
@@ -570,9 +570,36 @@ const whereAmI = async function () {
     const data = await res.json();
 
     renderCountry(data[0]);
+
+    return `You are in ${dataGeo.city}, ${dataGeo.country}`;
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     renderError(`${err.message}`);
+
+    // Reject promise returned from async function
+    throw err;
   }
 };
-whereAmI();
+console.log('1: Will getting location');
+// const city = whereAmI();
+// console.log(city);//promise - wywoła się odrazu
+
+// wrong way is mixing the async/await with then/catch
+// whereAmI()
+//   .then(city => console.log(`2: ${city}`))
+//   .catch(err => console.error(`2: ${err.message}`)) //wywoła się na końcu
+//   .finally(() => {
+//     console.log('3: Finished getting location');
+//   });
+
+// replace it with the better way
+// with ify?-function which called immediately
+(async function () {
+  try {
+    const city = await whereAmI();
+    console.log(`2: ${city}`);
+  } catch (err) {
+    console.error(`2: ${err.message}`);
+  }
+  console.log('3: Finished getting location');
+})();
