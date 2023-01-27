@@ -292,33 +292,55 @@ btn.addEventListener('click', function () {
 
 // THERE IS ONE PROBLEM WITH THIS API, THERE IS ONLY ONE FREE CALL FOR ONE COORDINATS(IN OTHER CASE YOU MUST TO PAY FOR IT) OR SOME ANOTHER BUG
 
-const whereAmI = function (lat, lng) {
-  // const url = `https://geocode.xyz/52.508,13.381?geoit=json`
-  // const url = `https://geocode.xyz/${lat},${lng}?geoit=json`;
+// const whereAmI = function (lat, lng) {
+//   // const url = `https://geocode.xyz/52.508,13.381?geoit=json`
+//   // const url = `https://geocode.xyz/${lat},${lng}?geoit=json`;
 
-  fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`)
-    .then(res => {
-      // console.log(res);
+//   fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`)
+//     .then(res => {
+//       // console.log(res);
 
-      if (!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
+//       if (!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
 
-      return res.json();
-    })
-    .then(data => {
-      console.log(data);
-      console.log(`You are in ${data.city}, ${data.country}`);
+//       return res.json();
+//     })
+//     .then(data => {
+//       console.log(data);
+//       console.log(`You are in ${data.city}, ${data.country}`);
 
-      return fetch(`https://restcountries.com/v3.1/name/${data.country}`);
-    })
-    .then(res => {
-      if (!res.ok) throw new Error(`Country not found (${res.status})`);
-      return res.json();
-    })
-    .then(data => renderCountry(data[0]))
-    .catch(err => console.error(`${err.message} 🛑`));
-};
-// whereAmI(52.508, 13.381);
-// whereAmI(19.037, 72.873);
-// whereAmI(-33.933, 18.474);
+//       return fetch(`https://restcountries.com/v3.1/name/${data.country}`);
+//     })
+//     .then(res => {
+//       if (!res.ok) throw new Error(`Country not found (${res.status})`);
+//       return res.json();
+//     })
+//     .then(data => renderCountry(data[0]))
+//     .catch(err => console.error(`${err.message} 🛑`));
+// };
+// // whereAmI(52.508, 13.381);
+// // whereAmI(19.037, 72.873);
+// // whereAmI(-33.933, 18.474);
 
-whereAmI(-33.733, 18.464);
+// whereAmI(-33.733, 18.464);
+
+////////////////////////////////////
+//  THE EVENT LOOP IN PRACTICE
+
+console.log('tEST START');
+setTimeout(() => {
+  console.log('0 sec timer');
+}, 0);
+Promise.resolve('Resolved promise 1').then(res => console.log(res));
+
+Promise.resolve('Resolved promise 2').then(res => {
+  for (let i = 0; i < 1000000000; i++) {}
+  console.log(res);
+});
+console.log('Test end');
+// Order:
+// tEST START
+// Test end
+//  Resolved promise 1
+// ....waiting
+// Resolved promise 1
+// 0 sec timer
