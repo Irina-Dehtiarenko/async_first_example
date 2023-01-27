@@ -326,21 +326,87 @@ btn.addEventListener('click', function () {
 ////////////////////////////////////
 //  THE EVENT LOOP IN PRACTICE
 
-console.log('tEST START');
-setTimeout(() => {
-  console.log('0 sec timer');
-}, 0);
-Promise.resolve('Resolved promise 1').then(res => console.log(res));
+// console.log('tEST START');
+// setTimeout(() => {
+//   console.log('0 sec timer');
+// }, 0);
+// Promise.resolve('Resolved promise 1').then(res => console.log(res));
 
-Promise.resolve('Resolved promise 2').then(res => {
-  for (let i = 0; i < 1000000000; i++) {}
-  console.log(res);
-});
-console.log('Test end');
-// Order:
+// Promise.resolve('Resolved promise 2').then(res => {
+//   for (let i = 0; i < 1000000000; i++) {}
+//   console.log(res);
+// });
+// console.log('Test end');
+// // Order:
 // tEST START
 // Test end
 //  Resolved promise 1
 // ....waiting
 // Resolved promise 1
 // 0 sec timer
+
+////////////////////////////////////
+// Building a simple (own)promise
+const lotteryPromise = new Promise(function (resolve, reject) {
+  console.log('Lottery draw is happening');
+
+  setTimeout(() => {
+    if (Math.random() >= 0.5) {
+      // fullfiled promise
+      resolve('You WIN🍷');
+    } else {
+      //error
+      reject(new Error('You lost your money🤖'));
+    }
+  }, 2000);
+});
+lotteryPromise.then(res => console.log(res)).catch(err => console.error(err));
+
+// Promisifying setTimeout
+const wait = function (seconds) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, seconds * 1000);
+  });
+};
+
+wait(1)
+  .then(() => {
+    console.log('1 second passed');
+    return wait(1);
+  })
+  .then(() => {
+    console.log('2 second passed');
+    return wait(1);
+  })
+  .then(() => {
+    console.log('3 second passed');
+    return wait(1);
+  })
+  .then(() => {
+    console.log('4 second passed');
+    return wait(1);
+  })
+  .then(() => console.log('5 sec passed'));
+
+// //  callback hell
+// setTimeout(() => {
+//   console.log('1 second passed');
+//   setTimeout(() => {
+//     console.log('2 second passed');
+//     setTimeout(() => {
+//       console.log('3 second passed');
+//       setTimeout(() => {
+//         console.log('4second passed');
+//         setTimeout(() => {
+//           console.log('5 second passed');
+//         }, 1000);
+//       }, 1000);
+//     }, 1000);
+//   }, 1000);
+// }, 1000);
+
+// fullfield - wykona się odrazu
+Promise.resolve('abc').then(x => console.log(x));
+// error - wykona się odrazu
+Promise.resolve('abc').then(x => 
+Promise.reject('abc').catch(x => console.error(x));
