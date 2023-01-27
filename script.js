@@ -616,7 +616,7 @@ const get3Countries = async function (c1, c2, c3) {
     // const [data3] = await getJSON(`https://restcountries.com/v3.1/name/${c3}`);
     // console.log([data1.capital[0], data2.capital[0], data3.capital[0]]);
 
-    // running promises in paralel
+    // running promises in paralel(combinator function)
     const data = await Promise.all([
       getJSON(`https://restcountries.com/v3.1/name/${c1}`),
       getJSON(`https://restcountries.com/v3.1/name/${c2}`),
@@ -629,3 +629,73 @@ const get3Countries = async function (c1, c2, c3) {
 };
 
 get3Countries('ukraine', 'canada', 'tanzania');
+
+//////////////////////////////////////
+//OTHER PTOMISE COMBINATORS : RACE, ALLSETTLED AND ANY
+
+// Promise.race
+(async function () {
+  const res = await Promise.race([
+    getJSON(`https://restcountries.com/v3.1/name/italy`),
+    getJSON(`https://restcountries.com/v3.1/name/egypt`),
+    getJSON(`https://restcountries.com/v3.1/name/mexico`),
+  ]);
+  console.log(res[0]); //Italy or another, which was faster
+})();
+
+const timeuot = function (sec) {
+  return new Promise(function (_, reject) {
+    setTimeout(() => {
+      reject(new Error('request took too long!'));
+    }, sec * 1000);
+  });
+};
+
+Promise.race([
+  getJSON(`https://restcountries.com/v3.1/name/ukraine`),
+  timeuot(5),
+  // timeuot(0.11),//teraz działa
+  // timeuot(0.1), y od połączenia internetowego// Error: request took too long!
+])
+  .then(res => console.log(res[0]))
+  .catch(err => console.error(err));
+
+// PROMISE.ALLSETTLED from ES2020
+// zwraca wszystkie wynniki ze wszystkich promises
+Promise.allSettled([
+  Promise.resolve('Success'),
+  Promise.reject('ERROR'),
+  Promise.resolve('Success'),
+  Promise.resolve('Another success'),
+]).then(res => console.log(res));
+/* (4) [{…}, {…}, {…}, {…}]
+0: {status: 'fulfilled', value: 'Success'}
+1: {status: 'rejected', reason: 'ERROR'}
+2: {status: 'fulfilled', value: 'Success'}
+3: {status: 'fulfilled', value: 'Another success'}
+length: 4
+[[Prototype]]
+: 
+Array(0) */
+
+// example with Promise.all:
+
+Promise.all([
+  Promise.resolve('Success'),
+  Promise.reject('ERROR'),
+  Promise.resolve('Success'),
+  Promise.resolve('Another success'),
+])
+  .then(res => console.log(res))
+  .catch(err => console.error(err)); //script.js:690 ERROR(because of our error)
+
+// PROMISE.ANY{ES2021}
+
+Promise.any([
+  Promise.resolve('Success'),
+  Promise.reject('ERROR'),
+  Promise.resolve('Success'),
+  Promise.resolve('Another success'),
+])
+  .then(res => console.log(res)) //Success
+  .catch(err => console.error(err));
