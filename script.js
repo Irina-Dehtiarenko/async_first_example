@@ -549,7 +549,8 @@ const getPosition = function () {
 // } catch (err) {
 //   alert(err.message);
 // }
-const whereAmI = async function () {
+
+/* const whereAmI = async function () {
   try {
     // Geolocation
     const pos = await getPosition();
@@ -580,7 +581,8 @@ const whereAmI = async function () {
     throw err;
   }
 };
-console.log('1: Will getting location');
+console.log('1: Will getting location'); */
+
 // const city = whereAmI();
 // console.log(city);//promise - wywoła się odrazu
 
@@ -594,7 +596,7 @@ console.log('1: Will getting location');
 
 // replace it with the better way
 // with ify?-function which called immediately
-(async function () {
+/* (async function () {
   try {
     const city = await whereAmI();
     console.log(`2: ${city}`);
@@ -603,3 +605,27 @@ console.log('1: Will getting location');
   }
   console.log('3: Finished getting location');
 })();
+ */
+//////////////////////////////////////
+// Running promises in Paralel
+
+const get3Countries = async function (c1, c2, c3) {
+  try {
+    // const [data1] = await getJSON(`https://restcountries.com/v3.1/name/${c1}`);
+    // const [data2] = await getJSON(`https://restcountries.com/v3.1/name/${c2}`);
+    // const [data3] = await getJSON(`https://restcountries.com/v3.1/name/${c3}`);
+    // console.log([data1.capital[0], data2.capital[0], data3.capital[0]]);
+
+    // running promises in paralel
+    const data = await Promise.all([
+      getJSON(`https://restcountries.com/v3.1/name/${c1}`),
+      getJSON(`https://restcountries.com/v3.1/name/${c2}`),
+      getJSON(`https://restcountries.com/v3.1/name/${c3}`),
+    ]); //returned a new promise
+    console.log(data.map(d => d[0].capital[0]));
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+get3Countries('ukraine', 'canada', 'tanzania');
