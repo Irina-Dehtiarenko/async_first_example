@@ -3,6 +3,33 @@
 const btn = document.querySelector('.btn-country');
 const countriesContainer = document.querySelector('.countries');
 
+const renderCountry = function (data, className = '') {
+  const html = `
+	<article class="country ${className}">
+		<img class="country__img" src="${data.flags.png}" />
+		<div class="country__data">
+		  <h3 class="country__name">${data.name.common}</h3>
+		  <h4 class="country__region">${data.region}</h4>
+		  <p class="country__row"><span>👫</span>${(+data.population / 1000000).toFixed(
+        1
+      )}M people</p>
+		  <p class="country__row"><span>🗣️</span>${Object.values(data.languages)[0]}</p>
+		  <p class="country__row"><span>💰</span>${
+        Object.values(data.currencies)[0].name
+      }</p>
+	  </div>
+  </article>
+	`;
+  countriesContainer.insertAdjacentHTML('beforeend', html);
+  // countriesContainer.style.opacity = '1';//in the finaly method
+};
+
+// Error function:
+const renderError = function (msg) {
+  countriesContainer.insertAdjacentText('beforeend', msg);
+  // countriesContainer.style.opacity = 1;
+};
+
 ///////////////////////////////////////
 // OLD way - XML HTTP request:
 // const getCountryData = function (country) {
@@ -121,26 +148,6 @@ const countriesContainer = document.querySelector('.countries');
 //   }, 1000);
 // }, 1000);
 
-const renderCountry = function (data, className = '') {
-  const html = `
-	<article class="country ${className}">
-		<img class="country__img" src="${data.flags.png}" />
-		<div class="country__data">
-		  <h3 class="country__name">${data.name.common}</h3>
-		  <h4 class="country__region">${data.region}</h4>
-		  <p class="country__row"><span>👫</span>${(+data.population / 1000000).toFixed(
-        1
-      )}M people</p>
-		  <p class="country__row"><span>🗣️</span>${Object.values(data.languages)[0]}</p>
-		  <p class="country__row"><span>💰</span>${
-        Object.values(data.currencies)[0].name
-      }</p>
-	  </div>
-  </article>
-	`;
-  countriesContainer.insertAdjacentHTML('beforeend', html);
-  countriesContainer.style.opacity = '1';
-};
 /////////////////////////////////////
 // modern way of getting data
 // fetch API
@@ -174,7 +181,11 @@ console.log(request); //Promise {
 const getCountryData = function (country) {
   // country 1
   fetch(`https://restcountries.com/v3.1/name/${country}`)
-    .then(response => response.json())
+    .then(
+      // 2callback: then( 1. when there is internet connection, 2. when there is no internet connection)
+      response => response.json()
+      // err => alert(err)- zamiast tego - globalnie
+    )
     .then(data => {
       renderCountry(data[0]);
       const neighbour = data[0].borders[0];
@@ -183,8 +194,25 @@ const getCountryData = function (country) {
       console.log(neighbour);
       return fetch(`https://restcountries.com/v3.1/alpha/${neighbour}`);
     })
-    .then(response => response.json())
-    .then(data => renderCountry(data[0], 'neighbour'));
+    .then(
+      response => response.json()
+      // err => alert(err) - zamiast tego - globalnie
+    )
+    .then(data => renderCountry(data[0], 'neighbour'))
+    .catch(err => {
+      console.error(`${err} 🛑🛑🛑`);
+      renderError(`Something went wrong 🛑🛑🛑 ${err.message}. Try again!`);
+    })
+    .finally(() => {
+      countriesContainer.style.opacity = '1';
+    });
+
+  //script.js:195 TypeError: Failed to fetch
 };
-getCountryData('ukraine');
-// getCountryData('germany');
+
+btn.addEventListener('click', function () {
+  getCountryData('ukraine');
+  // jeśli nie ma internetu i nie mamy przechwyconego błędu:
+  //Uncaught (in promise) TypeError: NetworkError when attempting to fetch resource.
+  // Zablokowano żądanie do zasobu innego pochodzenia: zasady „Same Origin Policy” nie pozwalają wczytywać zdalnych zasobów z „https://restcountries.com/v3.1/name/portugal” (nieudane żądanie CORS). Kod stanu: (null).
+});
