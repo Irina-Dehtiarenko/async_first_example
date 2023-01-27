@@ -279,9 +279,9 @@ const getCountryData = function (country) {
     });
 };
 
-btn.addEventListener('click', function () {
-  getCountryData('ukraine');
-});
+// btn.addEventListener('click', function () {
+// getCountryData('ukraine');
+// });
 
 // no neighbour - error 3
 // getCountryData('australia');
@@ -346,47 +346,47 @@ btn.addEventListener('click', function () {
 // 0 sec timer
 
 ////////////////////////////////////
-// Building a simple (own)promise
-const lotteryPromise = new Promise(function (resolve, reject) {
-  console.log('Lottery draw is happening');
+// // Building a simple (own)promise
+// const lotteryPromise = new Promise(function (resolve, reject) {
+//   console.log('Lottery draw is happening');
 
-  setTimeout(() => {
-    if (Math.random() >= 0.5) {
-      // fullfiled promise
-      resolve('You WIN🍷');
-    } else {
-      //error
-      reject(new Error('You lost your money🤖'));
-    }
-  }, 2000);
-});
-lotteryPromise.then(res => console.log(res)).catch(err => console.error(err));
+//   setTimeout(() => {
+//     if (Math.random() >= 0.5) {
+//       // fullfiled promise
+//       resolve('You WIN🍷');
+//     } else {
+//       //error
+//       reject(new Error('You lost your money🤖'));
+//     }
+//   }, 2000);
+// });
+// lotteryPromise.then(res => console.log(res)).catch(err => console.error(err));
 
 // Promisifying setTimeout
-const wait = function (seconds) {
-  return new Promise(function (resolve) {
-    setTimeout(resolve, seconds * 1000);
-  });
-};
+// const wait = function (seconds) {
+//   return new Promise(function (resolve) {
+//     setTimeout(resolve, seconds * 1000);
+//   });
+// };
 
-wait(1)
-  .then(() => {
-    console.log('1 second passed');
-    return wait(1);
-  })
-  .then(() => {
-    console.log('2 second passed');
-    return wait(1);
-  })
-  .then(() => {
-    console.log('3 second passed');
-    return wait(1);
-  })
-  .then(() => {
-    console.log('4 second passed');
-    return wait(1);
-  })
-  .then(() => console.log('5 sec passed'));
+// wait(1)
+//   .then(() => {
+//     console.log('1 second passed');
+//     return wait(1);
+//   })
+//   .then(() => {
+//     console.log('2 second passed');
+//     return wait(1);
+//   })
+//   .then(() => {
+//     console.log('3 second passed');
+//     return wait(1);
+//   })
+//   .then(() => {
+//     console.log('4 second passed');
+//     return wait(1);
+//   })
+//   .then(() => console.log('5 sec passed'));
 
 // //  callback hell
 // setTimeout(() => {
@@ -406,6 +406,56 @@ wait(1)
 // }, 1000);
 
 // fullfield - wykona się odrazu
-Promise.resolve('abc').then(x => console.log(x));
-// error - wykona się odrazu
-Promise.reject('abc').catch(x => console.error(x));
+// Promise.resolve('abc').then(x => console.log(x));
+// // error - wykona się odrazu
+// Promise.reject('abc').catch(x => console.error(x));
+
+////////////////////////////////////
+// Promisifying the Geolocation API
+
+const getPosition = function () {
+  return new Promise(function (resolve, reject) {
+    // navigator.geolocation.getCurrentPosition(
+    //   position => resolve(position),
+
+    //   err => {
+    //     return reject(err);
+    //     // GeolocationPositionError {code: 1, message: 'User denied Geolocation'}
+    //   }
+    // );
+
+    navigator.geolocation.getCurrentPosition(resolve, reject);
+  });
+};
+
+// getPosition().then(resolve => console.log(resolve));
+// .catch(err => console.error(err));
+
+const whereAmI = function () {
+  getPosition()
+    .then(pos => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+
+      return fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
+    })
+    .then(res => {
+      if (!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
+
+      return res.json();
+    })
+    .then(data => {
+      console.log(data);
+      console.log(`You are in ${data.city}, ${data.country}`);
+
+      return fetch(`https://restcountries.com/v3.1/name/${data.country}`);
+    })
+    .then(res => {
+      if (!res.ok) throw new Error(`Country not found (${res.status})`);
+      return res.json();
+    })
+    .then(data => renderCountry(data[0]))
+    .catch(err => console.error(`${err.message} 🛑`));
+};
+
+// whereAmI(52.508, 13.381);
+btn.addEventListener('click', whereAmI);
