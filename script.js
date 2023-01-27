@@ -408,5 +408,4 @@ wait(1)
 // fullfield - wykona się odrazu
 Promise.resolve('abc').then(x => console.log(x));
 // error - wykona się odrazu
-Promise.resolve('abc').then(x => 
 Promise.reject('abc').catch(x => console.error(x));
