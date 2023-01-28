@@ -507,11 +507,11 @@ const getCountryData = function (country) {
 // //////////////////////////////////////////////
 // Consuming promises with Async/Await
 
-const getPosition = function () {
-  return new Promise(function (resolve, reject) {
-    navigator.geolocation.getCurrentPosition(resolve, reject);
-  });
-};
+// const getPosition = function () {
+//   return new Promise(function (resolve, reject) {
+//     navigator.geolocation.getCurrentPosition(resolve, reject);
+//   });
+// };
 
 // const whereAmI = async function () {
 //   // Geolocation
@@ -609,65 +609,67 @@ console.log('1: Will getting location'); */
 //////////////////////////////////////
 // Running promises in Paralel
 
-const get3Countries = async function (c1, c2, c3) {
-  try {
-    // const [data1] = await getJSON(`https://restcountries.com/v3.1/name/${c1}`);
-    // const [data2] = await getJSON(`https://restcountries.com/v3.1/name/${c2}`);
-    // const [data3] = await getJSON(`https://restcountries.com/v3.1/name/${c3}`);
-    // console.log([data1.capital[0], data2.capital[0], data3.capital[0]]);
+// const get3Countries = async function (c1, c2, c3) {
+//   try {
+//     // const [data1] = await getJSON(`https://restcountries.com/v3.1/name/${c1}`);
+//     // const [data2] = await getJSON(`https://restcountries.com/v3.1/name/${c2}`);
+//     // const [data3] = await getJSON(`https://restcountries.com/v3.1/name/${c3}`);
+//     // console.log([data1.capital[0], data2.capital[0], data3.capital[0]]);
 
-    // running promises in paralel(combinator function)
-    const data = await Promise.all([
-      getJSON(`https://restcountries.com/v3.1/name/${c1}`),
-      getJSON(`https://restcountries.com/v3.1/name/${c2}`),
-      getJSON(`https://restcountries.com/v3.1/name/${c3}`),
-    ]); //returned a new promise
-    console.log(data.map(d => d[0].capital[0]));
-  } catch (err) {
-    console.log(err);
-  }
-};
+//     // running promises in paralel(combinator function)
+//     const data = await Promise.all([
+//       getJSON(`https://restcountries.com/v3.1/name/${c1}`),
+//       getJSON(`https://restcountries.com/v3.1/name/${c2}`),
+//       getJSON(`https://restcountries.com/v3.1/name/${c3}`),
+//     ]); //returned a new promise
+//     console.log(data.map(d => d[0].capital[0]));
+//   } catch (err) {
+//     console.log(err);
+//   }
+// };
 
-get3Countries('ukraine', 'canada', 'tanzania');
+// get3Countries('ukraine', 'canada', 'tanzania');
 
 //////////////////////////////////////
 //OTHER PTOMISE COMBINATORS : RACE, ALLSETTLED AND ANY
 
 // Promise.race
-(async function () {
-  const res = await Promise.race([
-    getJSON(`https://restcountries.com/v3.1/name/italy`),
-    getJSON(`https://restcountries.com/v3.1/name/egypt`),
-    getJSON(`https://restcountries.com/v3.1/name/mexico`),
-  ]);
-  console.log(res[0]); //Italy or another, which was faster
-})();
+// (async function () {
+//   const res = await Promise.race([
+//     getJSON(`https://restcountries.com/v3.1/name/italy`),
+//     getJSON(`https://restcountries.com/v3.1/name/egypt`),
+//     getJSON(`https://restcountries.com/v3.1/name/mexico`),
+//   ]);
+//   console.log(res[0]); //Italy or another, which was faster
+// })();
 
-const timeuot = function (sec) {
-  return new Promise(function (_, reject) {
-    setTimeout(() => {
-      reject(new Error('request took too long!'));
-    }, sec * 1000);
-  });
-};
+// const timeuot = function (sec) {
+//   return new Promise(function (_, reject) {
+//     setTimeout(() => {
+//       reject(new Error('request took too long!'));
+//     }, sec * 1000);
+//   });
+// };
 
-Promise.race([
-  getJSON(`https://restcountries.com/v3.1/name/ukraine`),
-  timeuot(5),
-  // timeuot(0.11),//teraz działa
-  // timeuot(0.1), y od połączenia internetowego// Error: request took too long!
-])
-  .then(res => console.log(res[0]))
-  .catch(err => console.error(err));
+// Promise.race([
+//   getJSON(`https://restcountries.com/v3.1/name/ukraine`),
+//   timeuot(5),
+//   // timeuot(0.11),//teraz działa
+//   // timeuot(0.1), y od połączenia internetowego// Error: request took too long!
+// ])
+//   .then(res => console.log(res[0]))
+//   .catch(err => console.error(err));
 
 // PROMISE.ALLSETTLED from ES2020
 // zwraca wszystkie wynniki ze wszystkich promises
-Promise.allSettled([
-  Promise.resolve('Success'),
-  Promise.reject('ERROR'),
-  Promise.resolve('Success'),
-  Promise.resolve('Another success'),
-]).then(res => console.log(res));
+
+// Promise.allSettled([
+//   Promise.resolve('Success'),
+//   Promise.reject('ERROR'),
+//   Promise.resolve('Success'),
+//   Promise.resolve('Another success'),
+// ]).then(res => console.log(res));
+
 /* (4) [{…}, {…}, {…}, {…}]
 0: {status: 'fulfilled', value: 'Success'}
 1: {status: 'rejected', reason: 'ERROR'}
@@ -680,22 +682,102 @@ Array(0) */
 
 // example with Promise.all:
 
-Promise.all([
-  Promise.resolve('Success'),
-  Promise.reject('ERROR'),
-  Promise.resolve('Success'),
-  Promise.resolve('Another success'),
-])
-  .then(res => console.log(res))
-  .catch(err => console.error(err)); //script.js:690 ERROR(because of our error)
+// Promise.all([
+//   Promise.resolve('Success'),
+//   Promise.reject('ERROR'),
+//   Promise.resolve('Success'),
+//   Promise.resolve('Another success'),
+// ])
+//   .then(res => console.log(res))
+//   .catch(err => console.error(err)); //script.js:690 ERROR(because of our error)
 
-// PROMISE.ANY{ES2021}
+// // PROMISE.ANY{ES2021}
 
-Promise.any([
-  Promise.resolve('Success'),
-  Promise.reject('ERROR'),
-  Promise.resolve('Success'),
-  Promise.resolve('Another success'),
-])
-  .then(res => console.log(res)) //Success
-  .catch(err => console.error(err));
+// Promise.any([
+//   Promise.resolve('Success'),
+//   Promise.reject('ERROR'),
+//   Promise.resolve('Success'),
+//   Promise.resolve('Another success'),
+// ])
+//   .then(res => console.log(res)) //Success
+//   .catch(err => console.error(err));
+
+///////////////////////////////////////////
+const wait = function (seconds) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, seconds * 1000);
+  });
+};
+
+const imgContainer = document.querySelector('.images');
+
+const createImage = function (imgPath) {
+  return new Promise((resolve, reject) => {
+    const newImg = document.createElement('img');
+    newImg.src = imgPath;
+
+    newImg.addEventListener('load', function () {
+      imgContainer.appendChild(newImg);
+      resolve(newImg);
+    });
+    newImg.addEventListener('error', function () {
+      reject(new Error('Image not found'));
+    });
+  });
+};
+let currImg;
+// Challenge #3
+
+// New version:
+
+/* const loadPause = async function () {
+  try {
+    currImg = await createImage(`./img/img-1.jpg`);
+    await wait(2);
+    currImg.style.display = 'none';
+    currImg = await createImage(`./img/img-2.jpg`);
+    await wait(2);
+    currImg.style.display = 'none';
+  } catch (err) {
+    console.error(err);
+  }
+};
+loadPause();
+ */
+// instead  of old version: from challenge2
+// createImage('./img/img-1.jpg')
+//   .then(img => {
+//     currImg = img;
+//     console.log('Image 1 load');
+//     return wait(2);
+//   })
+//   .then(() => {
+//     currImg.style.display = 'none';
+//     return createImage('./img/img-2.jpg');
+//   })
+//   .then(img => {
+//     currImg = img;
+//     console.log('Image 2 load');
+//     return wait(2);
+//   })
+//   .then(() => {
+//     currImg.style.display = 'none';
+//   })
+//   .catch(err => console.error(err));
+
+// Part 2:
+const imgArr = ['img/img-1.jpg', 'img/img-2.jpg', 'img/img-3.jpg'];
+
+const loadAll = async function (imgArr) {
+  try {
+    const imgs = imgArr.map(async img => await createImage(img));
+    console.log(imgs);
+
+    const imgEls = await Promise.all(imgs);
+    imgEls.forEach(img => img.classList.add('parallel'));
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+loadAll(imgArr);
